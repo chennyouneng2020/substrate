@@ -1,43 +1,46 @@
-use std::fmt::Debug;
-
-trait HasArea {
-    fn area(&self) -> f64;
+ 
+trait CalculateArea{
+    fn calculat(&self) ;
 }
 
-impl HasArea for Rectangle {
-    fn area(&self) -> f64 {
-        self.length * self.height
+impl CalculateArea for triangle{
+    fn calculat(&self) {
+       let areas= self.bottom*self.high/2;
+       println!("area {}",areas);
     }
 }
 
-#[derive(Debug)]
-struct Rectangle {
-    length: f64,
-    height: f64,
-}
-#[allow(dead_code)]
-struct Triangle {
-    length: f64,
-    height: f64,
+
+impl CalculateArea for square{
+    fn calculat(&self) {
+       let areas= self.length*self.length;
+       println!("area {}",areas);
+    }
 }
 
-fn print_debug<T: Debug>(t: &T) {
-    println!("{:?}", t);
+struct triangle{
+    bottom: u32,
+    high: u32
 }
 
-fn area<T: HasArea>(t: &T) -> f64 {
-    t.area()
+struct square{
+    length: u32
+}
+
+fn getArea<T:CalculateArea>(graphics: &T){
+    graphics.calculat();
 }
 
 fn main() {
-    let rectangle = Rectangle {
-        length: 3.0,
-        height: 4.0,
-    };
-    let _triangle = Triangle {
-        length: 3.0,
-        height: 4.0,
-    };
-    print_debug(&rectangle);
-    println!("Area: {}", area(&rectangle));
+   
+    //三角形面积
+    let triangle=triangle{bottom: 10,high: 6 };
+    getArea(&triangle);
+
+     //正方形面积
+     let square=square{length: 5 };
+     getArea(&square);
 }
+
+
+ 
