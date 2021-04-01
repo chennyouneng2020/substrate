@@ -1,13 +1,16 @@
- 
-fn Sum(list:&[u32])->u32{
-    let mut ret=0_u32;
-    for i in list.iter() {
-        ret+=i;
+fn Sum(vec: &Vec<u32>)-> Option<u32> {
+    let mut sums: u32=0;
+    for i in vec{
+       match  sums.checked_add(*i) {
+            Some(s) => {sums=sums+s;}
+            None => {return None;}  
+       };
     }
-    ret
+    Some(sums)
 }
- 
+
 fn main(){
-     let a=[12,33,20,333,84];
+    let a=vec![12,33,20,333,84];
     println!("{}",Sum(&a));
+
 }
