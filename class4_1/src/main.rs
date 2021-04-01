@@ -1,33 +1,88 @@
-//module:   Traficlight
-//date:     2021/03/29
-//author:   chenyouneng
-//email:    bbeyondllove@gmail.com
-
-enum Traficlight{
-    Red,
-    Green,
-    Yellow,
+trait LampTime{
+    fn getLampTime(&self)-> i32;
+}
+enum StreetLamp{
+    green,
+    red,
+    yellow,
 }
 
-trait TraficTime{
-    fn get_time(&self)->u32;
-}
-
-impl TraficTime for Traficlight{
-    fn get_time(&self)->u32{
-        match self{
-            Traficlight::Red=>60,
-            Traficlight::Green=>30,
-            Traficlight::Yellow=>10,
+impl LampTime for StreetLamp{
+    fn getLampTime(&self) -> i32{
+      match *self{
+            StreetLamp::green => 60,
+            StreetLamp::red => 70,
+            _=> 80,
         }
+    } 
+}
+
+
+//计算集合的和
+fn Sum(vec: &[u32])-> Option<u32> {
+    let mut sums: u32=0;
+    for i in vec{
+       match  sums.checked_add(*i) {
+            Some(s) => {sums=s;}
+            None => {return None;}  
+       };
     }
+    Some(sums)
 }
 
  
-fn main(){
-    let r1=Traficlight::Red;
-    let r2=Traficlight::Green;
-    let r3=Traficlight::Yellow;
-
-    println!("{},{},{}",r1.get_time(),r2.get_time(),r3.get_time())
+trait CalculateArea{
+    fn calculat(&self) ;
 }
+
+impl CalculateArea for triangle{
+    fn calculat(&self) {
+       let areas= self.bottom*self.high/2;
+       println!("area {}",areas);
+    }
+}
+
+
+impl CalculateArea for square{
+    fn calculat(&self) {
+       let areas= self.length*self.length;
+       println!("area {}",areas);
+    }
+}
+
+struct triangle{
+    bottom: u32,
+    high: u32
+}
+
+struct square{
+    length: u32
+}
+
+fn getArea<T:CalculateArea>(graphics: &T){
+    graphics.calculat();
+}
+
+fn main() {
+    //红绿灯
+    let reds= StreetLamp::red;
+    let times=reds.getLampTime();
+    println!("red ={}",times);
+
+    //计算集合的和
+    let  v=[1,2,8,17];
+    let sum=Sum(&v);    
+    println!("sum ={:?}",sum);
+
+
+    //三角形面积
+    let triangle=triangle{bottom: 10,high: 6 };
+    getArea(&triangle);
+
+     //正方形面积
+     let square=square{length: 5 };
+     getArea(&square);
+}
+
+
+ 
