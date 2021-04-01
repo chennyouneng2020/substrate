@@ -11,6 +11,6 @@ fn Sum(vec: &Vec<u32>)-> Option<u32> {
 
 fn main(){
     let a=vec![12,33,20,333,84];
-    println!("{}",Sum(&a));
+    println!("{:?}",Sum(&a));
 
 }
