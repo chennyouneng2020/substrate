@@ -1,54 +1,48 @@
-![cfg_attr(not(feature = "std"), no_std)]
-
+#![cfg_attr(not(feature = "std"), no_std)]
+// 1. Imports
 use frame_support::{
-    decl_module, decl_storage, decl_event, decl_error, ensure, StorageMap
+    decl_module, decl_storage, decl_event, decl_error, ensure,StorageMap
 };
 use frame_system::ensure_signed;
 use sp_std::vec::Vec;
 
-#[cfg(test)]
-mod mock;
 
-#[cfg(test)]
-mod tests;
-
+// 2. Pallet Configuration
 /// Configure the pallet by specifying the parameters and types on which it depends.
-/// 通过指定托盘所依赖的参数和类型来配置托盘。
-pub trait Trait: frame_system::Trait {
-	/// Because this pallet emits events, it depends on the runtime's definition of an event.
-	/// 因为此托盘会发出事件，所以它依赖于运行时对事件的定义。
-	type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config {
+    /// Because this pallet emits events, it depends on the runtime's definition of an event.
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 }
 
-// The pallet's runtime storage items.
-// https://substrate.dev/docs/en/knowledgebase/runtime/storage
+// 3. Pallet Storage Items
 // The pallet's runtime storage items.
 // https://substrate.dev/docs/en/knowledgebase/runtime/storage
 decl_storage! {
-    trait Store for Module<T: Trait> as TemplateModule {
+    trait Store for Module<T: Config> as TemplateModule {
         /// The storage item for our proofs.
         /// It maps a proof to the user who made the claim and when they made it.
         Proofs: map hasher(blake2_128_concat) Vec<u8> => (T::AccountId, T::BlockNumber);
     }
 }
 
+// 4. Pallet Events 
 // Pallets use events to inform users when important changes are made.
 // Event documentation should end with an array that provides descriptive names for parameters.
 // https://substrate.dev/docs/en/knowledgebase/runtime/events
 decl_event! {
-    pub enum Event<T> where AccountId = <T as frame_system::Trait>::AccountId {
+    pub enum Event<T> where AccountId = <T as frame_system::Config>::AccountId {
         /// Event emitted when a proof has been claimed. [who, claim]
         ClaimCreated(AccountId, Vec<u8>),
         /// Event emitted when a claim is revoked by the owner. [who, claim]
         ClaimRevoked(AccountId, Vec<u8>),
-        /// Event emitted when a claim is changed by the owner. [who, to, claim]  ///simon
-        ClaimChanged(AccountId, Receiver, Vec<u8>),
+        ClaimChanged(AccountId,AccountId,Vec<u8>),
     }
 }
 
+// 5. Pallet Errors
 // Errors inform users that something went wrong.
 decl_error! {
-    pub enum Error for Module<T: Trait> {
+    pub enum Error for Module<T: Config> {
         /// The proof has already been claimed.
         ProofAlreadyClaimed,
         /// The proof does not exist, so it cannot be revoked.
@@ -58,23 +52,20 @@ decl_error! {
     }
 }
 
+
+// 6. Callable Pallet Functions
 // Dispatchable functions allows users to interact with the pallet and invoke state changes.
 // These functions materialize as "extrinsics", which are often compared to transactions.
 // Dispatchable functions must be annotated with a weight and must return a DispatchResult.
-// Dispatchable functions allows users to interact with the pallet and invoke state changes.
-// These functions materialize as "extrinsics", which are often compared to transactions.
-// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
-// 可调用函数
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
-        // 如果在可调用函数里，需要用到错误信息类型，就需要这样写，可以理解成固定用法
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
+        // Errors must be initialized if they are used by the pallet.
         type Error = Error<T>;
 
-        // 如果在可调用函数里，需要触发事件，就需要这样写，可以理解成固定用法
+        // Events must be initialized if they are used by the pallet.
         fn deposit_event() = default;
 
-        /// 允许用户提交一个未存证的存证
-        /// weight是当前函数的权重
+        /// Allow a user to claim ownership of an unclaimed proof.
         #[weight = 10_000]
         fn create_claim(origin, proof: Vec<u8>) {
             // Check that the extrinsic was signed and get the signer.
@@ -118,8 +109,8 @@ decl_module! {
             // Emit an event that the claim was erased.
             Self::deposit_event(RawEvent::ClaimRevoked(sender, proof));
         }
-
-        /// 允许转移存证给他人
+   
+        
         #[weight = 10_000]
         fn change_owner_claim(origin, receiver: T::AccountId, proof: Vec<u8>) {
             // 检查调用者是否已签名
@@ -156,6 +147,7 @@ decl_module! {
             // 比如当我们需要http请求外部数据时，就需要用到offchain_worker，优势是不占用链上的计算和存储资源
             // on_runtime_upgrade，当有runtime升级时才会执行，用来迁移数据。
         }
+
 
     }
 }
